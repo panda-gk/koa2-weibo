@@ -7,5 +7,16 @@
   <body>
     <h1><%= title %></h1>
     <p>EJS Welcome to <%= title %></p>
+
+    <% if (isMe) { %>
+      <a href="#">@提到我的人</a>
+    <% } else { %>
+      <button>关注</button>
+    <% } %>
+
+    <br>
+    <%- include('compontents/list', {
+      blogList
+    })%>
   </body>
 </html>
