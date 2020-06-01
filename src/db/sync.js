@@ -5,7 +5,7 @@
 const seq = require('./seq')
 
 // 引入 模型
-// require('./model')
+require('./model')
 
 // 测试链接
 seq.authenticate().then(() => {
@@ -14,7 +14,7 @@ seq.authenticate().then(() => {
     console.log('err')
 })
 // 执行同步 数据库
-seq.sync().then(() => {
+seq.sync({force: true}).then(() => {
     console.log('sync ok')
     process.exit()
 })

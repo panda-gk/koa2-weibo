@@ -27,6 +27,6 @@ if (isProd) {
     }
 }
 
-const seq = new Sequelize(database, user, password, conf)
+const seq = new Sequelize(database, user, password, conf) // 连接数据库
 
 module.exports = seq

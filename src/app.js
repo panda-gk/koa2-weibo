@@ -5,28 +5,22 @@ const json = require('koa-json')
 const onerror = require('koa-onerror')
 const bodyparser = require('koa-bodyparser')
 const logger = require('koa-logger')
-const session = require('koa-generic-session') // koa 操作session
-const redisStore = require('koa-redis') // koa操作redis
+// const session = require('koa-generic-session') // koa 操作session
+// const redisStore = require('koa-redis') // koa操作redis
 const { redisConf } = require('./conf/db')
-const index = require('./routes/index')
-const users = require('./routes/users')
+// const routers = require('./routes/index')
+const userApiRouter = require('./routes/api/user')
 const errorRouter = require('./routes/view/error')
+const indexRouter = require('./routes/users')
 const cors = require('koa2-cors');
+
+// jwt 
+const koaJwt = require('koa-jwt')
+const routerBeforeLoad = require('./middleware/routerBeforeLoad')
+const { ErrorModel } = require('./model/ResModel')
+const { SESSION_KEY } = require('./conf/constant')
 // 跨域
-// app.use(async (ctx, next) => {
-//   ctx.set('Access-Control-Allow-Origin', '*');
-//   await next();
-//  });
-//  app.use(async (ctx, next)=> {
-//   ctx.set('Access-Control-Allow-Origin', '*');
-//   ctx.set('Access-Control-Allow-Headers', 'Content-Type, Content-Length, Authorization, Accept, X-Requested-With , yourHeaderFeild');
-//   ctx.set('Access-Control-Allow-Methods', 'PUT, POST, GET, DELETE, OPTIONS');
-//   if (ctx.method == 'OPTIONS') {
-//     ctx.body = 200; 
-//   } else {
-//     await next();
-//   }
-// });
+
 app.use(cors({
   origin: '*',
   exposeHeaders: ['WWW-Authenticate', 'Server-Authorization'],
@@ -44,11 +38,12 @@ let errorConf = {
 }
 onerror(app, errorConf)
 
-// middlewares
+// middlewares 解析数据
 app.use(bodyparser({
   enableTypes:['json', 'form', 'text']
 }))
 app.use(json())
+
 app.use(logger())
 app.use(require('koa-static')(__dirname + '/public'))
 
@@ -58,20 +53,34 @@ app.use(views(__dirname + '/views', {
 
 //  session 配置
 // 加密
-app.keys =['gbbGyr_123456'],
-app.use(session({
-  key: 'webo.sid', // cookie name 默认 koa.sid
-  prefix: 'webo:sess:', // redis key的 前缀 默认是'koa;sess,
-  cookie: {
-    path:'/', // 全局访问
-    httpOnly: true, // 只能服务端 修改
-    maxAge: 24 * 60 * 60 * 1000 // 过期时间 ms
-  },
-  store: redisStore({
-    all: `${redisConf.host}:${redisConf.port}`
-  })
-}))
+// app.keys =[SESSION_KEY],
+// app.use(session({
+//   key: 'webo.sid', // cookie name 默认 koa.sid
+//   prefix: 'webo:sess:', // redis key的 前缀 默认是'koa;sess,
+//   cookie: {
+//     path:'/', // 全局访问
+//     httpOnly: true, // 只能服务端 修改
+//     maxAge: 24 * 60 * 60 * 1000 // 过期时间 ms
+//   },
+//   store: redisStore({
+//     all: `${redisConf.host}:${redisConf.port}`
+//   })
+// }))
+// token 过滤规则
+// app.use(koaJwt({
+//   secret: SESSION_KEY,
+// }).unless({
+//   path: [
+//     /^\/api\/user\/login/,
+//     /^\/api\/user\/register/,
+//   ]
+// }))
 
+// 验证 token 失效
+app.use(routerBeforeLoad)
+// app.use(async (ctx, next) => {
+//   routerBeforeLoad(ctx,next)
+// })
 // logger
 app.use(async (ctx, next) => {
   const start = new Date()
@@ -79,11 +88,23 @@ app.use(async (ctx, next) => {
   const ms = new Date() - start
   console.log(`${ctx.method} ${ctx.url} - ${ms}ms`)
 })
+// 容错
 
 // routes
-app.use(index.routes(), index.allowedMethods())
-app.use(users.routes(), users.allowedMethods())
+app.use(indexRouter.routes(), indexRouter.allowedMethods())
+app.use(userApiRouter.routes(), userApiRouter.allowedMethods())
+// app.use(routers.routes(), routers.allowedMethods())
+// app.use(users.routes(), users.allowedMethods())
 app.use(errorRouter.routes(), errorRouter.allowedMethods())
+
+// app.use(async(ctx, next) => {
+//   return next().catch(err => {
+//     if(err.status == 401) {
+//       ctx.status = 401
+//       ctx.body = new ErrorModel({code: 401, msg: 'token error 401'})
+//     }
+//   })
+// })
 
 
 // error-handling
