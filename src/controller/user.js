@@ -7,7 +7,8 @@ const {
     findAllUser,
     deleteUser,
     updateUser,
-    qkCreateUser
+    qkCreateUser,
+    getUserInfoWidthId
   } = require('../services/user')
 const { SuccessModel, ErrorModel } = require('../model/ResModel')
 const {SESSION_KEY} = require('../conf/constant')
@@ -123,24 +124,23 @@ const encrypt =  require('../utils/encrypt')
      return new ErrorModel({msg: '删除失败'})
  }
 
- const editUser = async({id, userName, nickName, password, gender, city}) => {
-    //  const userInfo = await getUserInfo(userName)
-    //  if (userInfo) {
-    //      return new ErrorModel({msg: '用户已存在'})
-    //  }
-     const updateParams = {
-         id,
-         userName,
-         nickName: nickName || userName,
-         password:encrypt(password),
-         gender: +gender || 3,
-         city: city || ''
-
+ const editUser = async({id, userName, nickName, gender, city}) => {
+     const userInfo = await getUserInfoWidthId(id)
+     if (!userInfo) {
+         return new ErrorModel({msg: '用户不存在'})
      }
-    const res = await updateUser(updateParams)
-    console.log('editUser =>', res)
+     const newVal = {
+        userName: userName,
+        nickName: nickName,
+        gender: gender,
+        city: city
+     }
+     const updateParams = {
+         id
+     }
+    const res = await updateUser(newVal, updateParams)
 
-    if (!res) {
+    if (res[0] <= 0) {
         return new ErrorModel({msg: '信息更新失败'})
     }
     return new SuccessModel()

@@ -10,6 +10,7 @@ const logger = require('koa-logger')
 const { redisConf } = require('./conf/db')
 // const routers = require('./routes/index')
 const userApiRouter = require('./routes/api/user')
+const blogAPiRouter = require('./routes/api/blog')
 const errorRouter = require('./routes/view/error')
 const indexRouter = require('./routes/users')
 const cors = require('koa2-cors');
@@ -66,6 +67,8 @@ app.use(views(__dirname + '/views', {
 //     all: `${redisConf.host}:${redisConf.port}`
 //   })
 // }))
+
+
 // token 过滤规则
 // app.use(koaJwt({
 //   secret: SESSION_KEY,
@@ -77,7 +80,7 @@ app.use(views(__dirname + '/views', {
 // }))
 
 // 验证 token 失效
-app.use(routerBeforeLoad)
+// app.use(routerBeforeLoad)
 // app.use(async (ctx, next) => {
 //   routerBeforeLoad(ctx,next)
 // })
@@ -93,6 +96,8 @@ app.use(async (ctx, next) => {
 // routes
 app.use(indexRouter.routes(), indexRouter.allowedMethods())
 app.use(userApiRouter.routes(), userApiRouter.allowedMethods())
+app.use(blogAPiRouter.routes(), blogAPiRouter.allowedMethods())
+
 // app.use(routers.routes(), routers.allowedMethods())
 // app.use(users.routes(), users.allowedMethods())
 app.use(errorRouter.routes(), errorRouter.allowedMethods())

@@ -1,6 +1,6 @@
 /**
  * @description sequelize 实例
- * @author 双越老师
+ * @author 
  */
 
 const Sequelize = require('sequelize')

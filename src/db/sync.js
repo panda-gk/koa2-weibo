@@ -14,7 +14,11 @@ seq.authenticate().then(() => {
     console.log('err')
 })
 // 执行同步 数据库
-seq.sync({force: true}).then(() => {
+// seq.sync({force: true}).then(() => {
+//     console.log('sync ok')
+//     process.exit()
+// })
+seq.sync().then(() => {
     console.log('sync ok')
     process.exit()
 })

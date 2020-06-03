@@ -4,7 +4,7 @@
 const { formatUser } = require('./_format')
 
  // 引用数据库
- const { User } = require('../db/model/index')
+ const { User, Blog } = require('../db/model')
  
  /**
   * 获取用户信息
@@ -20,6 +20,7 @@ const { formatUser } = require('./_format')
         opts.password = password
     }
     const res = await User.findOne({
+        attributes: ['id', 'userName', 'nickName', 'picture', 'city'],
         where:opts
     })
     if (res == null) {
@@ -65,27 +66,50 @@ const findAllUser = async (page = 1, size = 10, userName) => {
  * @param {string} id 
  */
 const deleteUser = async(id) => {
-    const res = await User.destroy({
-        where:{
+    // const opts = {
+    //     id
+    // }
+    // const res = await User.findOne({where:opts})
+    // console.log('deleteUser =>', res)
+    // const res = await User.destroy({
+    //     where:{
+    //         id
+    //     }
+    // })
+    // // 返回行数 >0 代表删除成功
+    // return res > 0
+
+    // 1 找到 当前user下面的所有文章 删除
+    //2 删除当前user
+  const res = await User.findAndCountAll({
+        where: {
             id
-        }
-    })
-    // 返回行数 >0 代表删除成功
-    return res > 0
-}
-const updateUser = async ({id, userName, nickName, password, gender=3, city=''}) => {
-    const res = await User.update(
-        {
-            id
-        }, 
-        {
-            where: {
-                userName,
-                nickName,
-                password,
-                gender,
-                city
+        },
+        include: [
+            {
+                model: Blog,
             }
+        ]
+    })
+    
+    console.log(res.rows[0].dataValues.blogs)
+}
+const getUserInfoWidthId = async (id) => {
+    const opts = {
+        id
+    }
+    const res = await User.findOne({where:opts})
+    return res.dataValues
+}
+/**
+ * 更新数据
+ * @param {object} param0 
+ */
+const updateUser = async (newVal, opts) => {
+    const res = await User.update(
+        newVal,
+        {
+            where:opts
         }
     )
     return res
@@ -102,5 +126,6 @@ const qkCreateUser = async(userList) => {
     findAllUser,
     deleteUser,
     updateUser,
-    qkCreateUser
+    qkCreateUser,
+    getUserInfoWidthId
  }

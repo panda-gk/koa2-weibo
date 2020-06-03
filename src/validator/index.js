@@ -46,7 +46,8 @@ const USER_SCHEMA = {
             minimum: 1,
             maximum: 3
         }
-    }
+    },
+    "required": [ "userName", 'password' ]
 }
 
 /**
