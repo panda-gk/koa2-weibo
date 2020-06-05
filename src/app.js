@@ -11,6 +11,7 @@ const { redisConf } = require('./conf/db')
 // const routers = require('./routes/index')
 const userApiRouter = require('./routes/api/user')
 const blogAPiRouter = require('./routes/api/blog')
+const fanApiRouter = require('./routes/api/fan')
 const errorRouter = require('./routes/view/error')
 const indexRouter = require('./routes/users')
 const cors = require('koa2-cors');
@@ -80,7 +81,7 @@ app.use(views(__dirname + '/views', {
 // }))
 
 // 验证 token 失效
-// app.use(routerBeforeLoad)
+app.use(routerBeforeLoad)
 // app.use(async (ctx, next) => {
 //   routerBeforeLoad(ctx,next)
 // })
@@ -97,6 +98,8 @@ app.use(async (ctx, next) => {
 app.use(indexRouter.routes(), indexRouter.allowedMethods())
 app.use(userApiRouter.routes(), userApiRouter.allowedMethods())
 app.use(blogAPiRouter.routes(), blogAPiRouter.allowedMethods())
+app.use(fanApiRouter.routes(), fanApiRouter.allowedMethods())
+
 
 // app.use(routers.routes(), routers.allowedMethods())
 // app.use(users.routes(), users.allowedMethods())

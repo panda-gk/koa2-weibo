@@ -148,11 +148,11 @@ const encrypt =  require('../utils/encrypt')
  // 批量创建
  const quickCreate = async() => {
     const list = []
-    for(var i = 0; i<100; i++ ) {
+    for(var i = 0; i<10; i++ ) {
         list.push({
-            userName: `测试1000${i}`,
-            password:encrypt(`123${i}`),
-            nickName:`测试1000${i}`,
+            userName: `测试${i}`,
+            password:encrypt(123),
+            nickName:`测试1${i}`,
             city: '中国'
         })
     }

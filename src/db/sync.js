@@ -18,7 +18,7 @@ seq.authenticate().then(() => {
 //     console.log('sync ok')
 //     process.exit()
 // })
-seq.sync().then(() => {
+seq.sync({force: true}).then(() => {
     console.log('sync ok')
     process.exit()
 })
